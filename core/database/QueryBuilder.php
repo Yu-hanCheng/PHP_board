@@ -62,10 +62,11 @@ class QueryBuilder
         $statement = $this->pdo->prepare("INSERT INTO rereplies (reply_id, name, content, created_at) VALUES ('{$reply['post_id']}', '{$reply['name']}', '{$reply['content']}', '{$reply['created_at']}')");
         $statement->execute();
     }
-    public function showReplies($post)
+    public function showReplies($post_id)
     {
-        $statement = $this->pdo->prepare("select * from posts where id= $post");
+        $statement = $this->pdo->prepare("select p.content as pcontent, r.id as rid, r.name as rname, r.content as rcontent, r.created_at as rcreated from replies as r INNER JOIN posts as p ON p.id = r.post_id where post_id = $post_id ORDER BY r.created_at desc");
         $statement->execute();
+        return $statement->fetchAll(PDO::FETCH_CLASS);
     }
 }
 ?>
