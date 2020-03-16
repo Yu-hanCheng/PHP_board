@@ -59,7 +59,7 @@ class QueryBuilder
     }
     public function storeReReply($reply)
     {
-        $statement = $this->pdo->prepare("INSERT INTO rereplies (reply_id, name, content, created_at) VALUES ('{$reply['post_id']}', '{$reply['name']}', '{$reply['content']}', '{$reply['created_at']}')");
+        $statement = $this->pdo->prepare("INSERT INTO rereplies (reply_id, name, content, created_at) VALUES ('{$reply['reply_id']}', '{$reply['name']}', '{$reply['content']}', '{$reply['created_at']}')");
         $statement->execute();
     }
     public function showReplies($post_id)

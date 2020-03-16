@@ -18,4 +18,6 @@ if ($_POST['type']) {
         'content'=>$_POST['content'],
         'created_at' => Carbon::now(),
     ]);
+    $_SESSION['post_id']=$_POST['post_id'];
 }
+header('Location:http://localhost:8888/showReply');
