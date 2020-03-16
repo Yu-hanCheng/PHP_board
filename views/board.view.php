@@ -1,23 +1,29 @@
-
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Board</title>
-    <style>
-        header { 
-            background: #e3e3e3;
-            padding: 2em;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
-        <input>Leave a msg</input>
+    <form action="storePost" method="post">
+        <a>Leave a msg</a>
+        <input type="text" id="content" name="content"><br><br>
+        <input type="submit" value="Submit">
+    </form> 
     <ul>
         <?php foreach ($board as $post) : ?>
         <li>
             <?= $post->name; ?>
             <?= $post->content; ?>
+            <form action="showReply" method="post">
+                <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
+                <input type="submit" value="All Replies -->">
+            </form> 
+            <form action="storeReply" method="post">
+                <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
+                <input type="hidden" name="type" value="0"></input>
+                <input type="text" id="content" name="content"><br><br>
+                <input type="submit" value="Reply">
+            </form> 
         </li>
             <?php endforeach; ?>
     </ul>
