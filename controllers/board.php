@@ -2,7 +2,7 @@
 require 'core/bootstrap.php';
 
 
-$db = new QueryBuilder($pdo);
+setcookie("user_name", $_POST['name'], time()+ 60,'/'); 
 $board = $db->selectAll('posts');
 
 require 'views/board.view.php';

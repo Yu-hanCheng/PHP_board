@@ -1,11 +1,11 @@
 <?php 
 
-require 'vendor/autoload.php';
+require 'core/bootstrap.php';
 
 use Carbon\Carbon;
 
 $db->storePost([
-    'name'=>$_POST['name'],
-    'content'=>'test',
+    'name'=>$_COOKIE['user_name'],
+    'content'=>$_POST['content'],
     'created_at' => Carbon::now(),
 ]);
