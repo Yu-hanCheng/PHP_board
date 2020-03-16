@@ -2,12 +2,24 @@
 <head>
     <meta charset="utf-8">
     <title>allReplies</title>
+    <style>
+        table, tr, td {
+            border: 0.5px solid gray;
+        }
+    </style>
 </head>
 <body>
     <table>
         <tr>
             <th>Post</th>
             <th><?= $replies[0]->pcontent ?></th>
+        </tr>
+    </table>
+    <br>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Reply content</th>
         </tr>
         <?php foreach ($replies as $reply) : ?>
         <tr>

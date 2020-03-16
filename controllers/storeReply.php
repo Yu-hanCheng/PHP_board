@@ -2,6 +2,8 @@
 require 'core/bootstrap.php';
 use Carbon\Carbon;
 
+session_start();
+
 if ($_POST['type']) {
     $db->storeReReply([
     'reply_id'=>$_POST['reply_id'],
