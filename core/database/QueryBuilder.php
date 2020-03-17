@@ -1,103 +1,88 @@
 <?php
 
+use Illuminate\Database\Capsule\Manager as Capsule;
+
 class QueryBuilder
 {
-    protected $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
-    
     public function createStatement()
     {
+        Capsule::schema()->create('posts', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('content');
+            $table->timestamps();
+        });
 
-        $statement = $this->pdo->prepare("create table posts(
-            id INT(10) AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(12) NOT NULL,
-            content VARCHAR(255) NOT NULL,
-            created_at DATETIME
-        );");
-        echo $statement->execute();
+        Capsule::schema()->create('replies', function ($table) {
+            $table->increments('id');
+            $table->integer('post_id')->unsigned();
+            $table->foreign('post_id')->references('id')->on('posts');
+            $table->string('name');
+            $table->string('content');
+            $table->timestamps();
+        });
 
-        $statement = $this->pdo->prepare("create table replies(
-            id INT(10) AUTO_INCREMENT PRIMARY KEY,
-            post_id INT NOT NULL,
-            FOREIGN KEY (post_id) REFERENCES posts(id),
-            name VARCHAR(12) NOT NULL,
-            content VARCHAR(255) NOT NULL,
-            created_at DATETIME
-        );");
-        echo $statement->execute();
-
-        $statement = $this->pdo->prepare("create table rereplies(
-            id INT(10) AUTO_INCREMENT PRIMARY KEY,
-            reply_id INT NOT NULL,
-            FOREIGN KEY (reply_id) REFERENCES replies(id),
-            name VARCHAR(12) NOT NULL,
-            content VARCHAR(255) NOT NULL,
-            created_at DATETIME
-        );");
-        echo $statement->execute();
+        Capsule::schema()->create('rereplies', function ($table) {
+            $table->increments('id');
+            $table->integer('reply_id')->unsigned();
+            $table->foreign('reply_id')->references('id')->on('replies');
+            $table->string('name');
+            $table->string('content');
+            $table->timestamps();
+        });
     }
 
     public function selectAll($table)
     {
-        $statement = $this->pdo->prepare("select * from $table ORDER BY created_at desc");
-        $statement->execute();
-        return $statement->fetchAll(PDO::FETCH_CLASS);
+        $post = Capsule::table($table)->orderBy('created_at','desc')->get();
+        return $post;
     }
+
     public function storePost($post)
     {
-        $statement = $this->pdo->prepare("INSERT INTO posts (name, content, created_at) VALUES ('{$post['name']}', '{$post['content']}', '{$post['created_at']}')");
-        $statement->execute();
+        $post = Capsule::table('posts')->insertGetId(
+            array('name' => $post['name'],
+                'content' => $post['content'],
+                'created_at' => $post['created_at']));
     }
+
     public function storeReply($reply)
     {
-        $statement = $this->pdo->prepare("INSERT INTO replies (post_id, name, content, created_at) VALUES ('{$reply['post_id']}', '{$reply['name']}', '{$reply['content']}', '{$reply['created_at']}')");
-        $statement->execute();
+        $reply = Capsule::table('replies')->insertGetId(
+            array('post_id' => $reply['post_id'],
+                'name' => $reply['name'],
+                'content' => $reply['content'],
+                'created_at' => $reply['created_at']));
     }
+
     public function storeReReply($reply)
     {
-        $statement = $this->pdo->prepare("INSERT INTO rereplies (reply_id, name, content, created_at) VALUES ('{$reply['reply_id']}', '{$reply['name']}', '{$reply['content']}', '{$reply['created_at']}')");
-        $statement->execute();
+        $reply = Capsule::table('rereplies')->insertGetId(
+            array('reply_id' => $reply['reply_id'],
+                'name' => $reply['name'],
+                'content' => $reply['content'],
+                'created_at' => $reply['created_at']));
     }
+
     public function showReplies($post_id)
     {
-        $statement = $this->pdo->prepare("select 
-            r.id as rid, 
-            r.name as rname, 
-            r.content as rcontent, 
-            r.created_at as rcreated
-            from replies as r 
-            where r.post_id = $post_id 
-            ORDER BY r.created_at desc");
-        $statement->execute();
-        $AllReplies = $statement->fetchAll(PDO::FETCH_CLASS);
-        $statementPost = $this->pdo->prepare("SELECT * FROM posts where id = $post_id");
-        $statementPost->execute();
+        $allReplies = Capsule::table('replies')->select(
+            'id as rid',
+            'name as rname',
+            'content as rcontent',
+            'created_at as rcreated'
+            )->where('post_id',$post_id)->orderBy('created_at','desc')->get();
+        $post = Capsule::table('posts')->where('id', $post_id)->get();
         $results = [];
-        foreach ($AllReplies as $reply) {
-            $statementrere = $this->pdo->prepare("SELECT name, content FROM rereplies where reply_id = $reply->rid ORDER BY created_at desc");
-            $statementrere->execute();
+        foreach ($allReplies as $reply) {
+            $rereplies = Capsule::table('rereplies')->where('reply_id', $reply->rid)->orderBy('created_at','desc')->get();
             $reply = json_decode(json_encode($reply), true);
-            $reply['rere'] = $statementrere->fetchAll();
+            $reply['rere'] = $rereplies;
             array_push($results,$reply);
         }
-        $post = $statementPost->fetchAll(PDO::FETCH_CLASS);
         $response['post'] = $post[0];
         $response['AllReplies'] = $results;
-        // var_dump($response);
-        // foreach ($posts as $post) {
-        // }
-        // $rerestatement = $this->pdo->prepare("select * from rereplies where reply_id = id");
         return $response;
-    }
-    public function showReReplies($reply_id)
-    {
-        $statement = $this->pdo->prepare("select * from rereplies as rr where rr.reply_id = $reply_id ORDER BY rr.created_at desc");
-        $statement->execute();
-        return $statement->fetchAll(PDO::FETCH_CLASS);
     }
 }
 ?>
