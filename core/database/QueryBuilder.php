@@ -73,7 +73,7 @@ class QueryBuilder
 
     public function storeReReply($reply)
     {
-        $reply = Capsule::table('rereplies')->insertGetId(
+        $rereply = Capsule::table('rereplies')->insertGetId(
             array('reply_id' => $reply['reply_id'],
                 'name' => $reply['name'],
                 'content' => $reply['content'],
@@ -99,6 +99,20 @@ class QueryBuilder
         $response['post'] = $post[0];
         $response['AllReplies'] = $results;
         return $response;
+    }
+
+    public function storeUser($user)
+    {
+        $isUnique = Capsule::table('users')->where('name',$user['name'])->exists();
+        if ($isUnique) {
+            return false;
+        } else {
+            $user = Capsule::table('users')->insertGetId(
+                array('name' => $user['name'],
+                'password' => $user['password'],
+                'created_at' => $user['created_at']));
+            return true;
+        }
     }
 }
 ?>
