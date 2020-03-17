@@ -64,7 +64,38 @@ class QueryBuilder
     }
     public function showReplies($post_id)
     {
-        $statement = $this->pdo->prepare("select p.content as pcontent, r.id as rid, r.name as rname, r.content as rcontent, r.created_at as rcreated from replies as r INNER JOIN posts as p ON p.id = r.post_id where post_id = $post_id ORDER BY r.created_at desc");
+        $statement = $this->pdo->prepare("select 
+            r.id as rid, 
+            r.name as rname, 
+            r.content as rcontent, 
+            r.created_at as rcreated
+            from replies as r 
+            where r.post_id = $post_id 
+            ORDER BY r.created_at desc");
+        $statement->execute();
+        $AllReplies = $statement->fetchAll(PDO::FETCH_CLASS);
+        $statementPost = $this->pdo->prepare("SELECT * FROM posts where id = $post_id");
+        $statementPost->execute();
+        $results = [];
+        foreach ($AllReplies as $reply) {
+            $statementrere = $this->pdo->prepare("SELECT name, content FROM rereplies where reply_id = $reply->rid ORDER BY created_at desc");
+            $statementrere->execute();
+            $reply = json_decode(json_encode($reply), true);
+            $reply['rere'] = $statementrere->fetchAll();
+            array_push($results,$reply);
+        }
+        $post = $statementPost->fetchAll(PDO::FETCH_CLASS);
+        $response['post'] = $post[0];
+        $response['AllReplies'] = $results;
+        // var_dump($response);
+        // foreach ($posts as $post) {
+        // }
+        // $rerestatement = $this->pdo->prepare("select * from rereplies where reply_id = id");
+        return $response;
+    }
+    public function showReReplies($reply_id)
+    {
+        $statement = $this->pdo->prepare("select * from rereplies as rr where rr.reply_id = $reply_id ORDER BY rr.created_at desc");
         $statement->execute();
         return $statement->fetchAll(PDO::FETCH_CLASS);
     }

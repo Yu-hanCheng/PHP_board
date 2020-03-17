@@ -12,7 +12,7 @@
 </head>
 <body>
     <form action="board" method="post">
-        <input type="text" id="name" name="name"><br><br>
+        <input type="text" id="name" name="name"/>
         <input type="submit" value="Submit">
     </form> 
 </body>

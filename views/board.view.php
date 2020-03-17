@@ -13,7 +13,7 @@
         <?php foreach ($board as $post) : ?>
         <li>
             <div><a>Name</a> <?= $post->name; ?></div>
-            <div><a>Created time</a> <?= $post->created_at; ?></div>
+            <div><a>Created time</a> <?= substr($post->created_at, 0, strlen($post->created_at)-3); ?></div>
             <div><a>Content</a> <?= $post->content; ?></div>
             <form action="showReply" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>

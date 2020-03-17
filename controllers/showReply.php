@@ -5,10 +5,8 @@ require 'core/bootstrap.php';
 try {
     if (isset($_POST['post_id'])) {
         $_SESSION['post_id']=$_POST['post_id'];
-        $replies = $db->showReplies($_SESSION['post_id']);
-    } else {
-        $replies = $db->showReplies($_SESSION['post_id']);
     }
+    $replies = json_decode(json_encode($db->showReplies($_SESSION['post_id'])),true);
 } catch (Exception $e) {
     echo $e->getMessage();
 }

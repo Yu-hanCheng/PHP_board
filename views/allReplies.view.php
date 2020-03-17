@@ -50,24 +50,42 @@
             <input type="submit" value="Reply">
         </form>
     </div>
+    <button onclick="location.href='http://localhost:8888/board'">BOARD</button>
     <table>
         <tr>
             <th>Post</th>
-            <th><?= $replies[0]->pcontent ?></th>
+            <th><?= $replies['post']['content']; ?></th>
+        </tr>
+        <tr>
+            <form action="storeReply" method="post">
+                <input type="hidden" name="post_id" value="<?= $replies['post']['id']; ?>"></input>
+                <input type="hidden" name="type" value="0"></input>
+                <input type="text" id="content" name="content"><br><br>
+                <input type="submit" value="Reply">
+            </form> 
         </tr>
     </table>
-    <br>
+    <br>    
     <table>
         <tr>
             <th>Name</th>
             <th>Reply content</th>
         </tr>
-        <?php foreach ($replies as $reply) : ?>
+        <?php foreach ($replies['AllReplies'] as $reply) : ?>
         <tr>
-            <td><?= $reply->rname ?></td>
-            <td><?= $reply->rcontent ?></td>
+            <td><?= $reply['rname'] ?></td>
+            <td><?= $reply['rcontent'] ?></td>
+            <td><table bordercolor=green>
+                <?php foreach ($reply['rere'] as $rereply) : ?>
+                    <tr>
+                        <td><?= $rereply['name'] ?></td>
+                        <td><?= $rereply['content'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+            </td>
             <td>
-            <div onclick=<?= "myFunction(".$reply->rid.")"?>>Reply
+            <div onclick=<?= "myFunction(".$reply['rid'].")"?>>Reply
             </div>
             </td>
         </tr>
