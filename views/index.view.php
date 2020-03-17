@@ -19,6 +19,7 @@
     </form> 
     <form action="board" method="post">
         <input type="text" id="name" name="name"/>
+        <input type="text" id="password" name="password"/>
         <input type="submit" value="Submit">
     </form> 
 </body>

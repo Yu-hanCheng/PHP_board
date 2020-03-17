@@ -114,5 +114,20 @@ class QueryBuilder
             return true;
         }
     }
+
+    public function isUser($name, $password)
+    {
+          $user = Capsule::table('users')->where('name', $name)->first();
+          if ($user) {
+              if ($password == $user->password) {
+                $user = json_decode(json_encode($user), true);
+                return [1, $user];
+              } else {
+                  return [0, "Password does not match"];
+              }
+          } else {
+              return [0, "User does not exist"];
+          }
+    }
 }
 ?>
