@@ -30,6 +30,22 @@ class QueryBuilder
             $table->string('content');
             $table->timestamps();
         });
+
+        Capsule::schema()->create('users', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->string('password');
+            $table->timestamps();
+        });
+
+        Capsule::schema()->create('likes', function ($table) {
+            $table->increments('id');
+            $table->integer('post_id')->unsigned();
+            $table->foreign('post_id')->references('id')->on('posts');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->timestamps();
+        });
     }
 
     public function selectAll($table)
