@@ -17,7 +17,11 @@
             <div><a>Content</a> <?= $post->content; ?></div>
             <form action="storeLike" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
-                <input type="submit" value="Like"/>
+                <?php if(!$post->like): ?>
+                    <input type="submit" value="Like" enabled/>
+                <?php else: ?>
+                    <input type="submit" value="Liked" disabled />
+                <?php endif; ?>
             </form> 
             <form action="showReply" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>

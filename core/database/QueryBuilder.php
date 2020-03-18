@@ -4,6 +4,7 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 
 class QueryBuilder
 {
+    protected $user_id;
     public function createStatement()
     {
         Capsule::schema()->create('posts', function ($table) {
@@ -48,9 +49,15 @@ class QueryBuilder
         });
     }
 
-    public function selectAll($table)
+    public function selectAll($table, $user_id)
     {
-        $post = Capsule::table($table)->orderBy('created_at','desc')->get();
+        $this->user_id = $user_id;
+        $post = Capsule::table($table)
+            ->leftJoin('likes', function($join){
+                $join->where('likes.user_id','=', $this->user_id)
+                ->on('posts.id', '=', 'likes.post_id');})
+            ->select('posts.*','likes.id as like')
+            ->orderBy('created_at','desc')->get();
         return $post;
     }
 
