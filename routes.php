@@ -6,4 +6,5 @@
         'storeReply' => 'controllers/storeReply.php',
         'showReply' => 'controllers/showReply.php',
         'register' => 'controllers/register.php',
+        'storeLike' => 'controllers/storeLike.php',
     ]);

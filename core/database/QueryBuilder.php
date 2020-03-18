@@ -129,5 +129,19 @@ class QueryBuilder
               return [0, "User does not exist"];
           }
     }
+
+    public function storeLike($like)
+    {
+        $hasA = Capsule::table('likes')->where([['user_id','=',$like['user_id']],['post_id','=', $like['post_id']]])->exists();
+        if ($hasA) {
+            return false;
+        } else {
+            $user = Capsule::table('likes')->insertGetId(
+                array('post_id' => $like['post_id'],
+                'user_id' => $like['user_id'],
+                'created_at' => $like['created_at']));
+            return true;
+        }
+    }
 }
 ?>
