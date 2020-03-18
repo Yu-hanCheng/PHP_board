@@ -50,19 +50,29 @@
             <input type="submit" value="Reply">
         </form>
     </div>
-    <button onclick="location.href='http://localhost:8888/board'">BOARD</button>
+    <div>
+        <button onclick="location.href='http://localhost:8888/board'">BOARD</button>
+    </div>
     <table>
         <tr>
             <th>Post</th>
             <th><?= $replies['post']['content']; ?></th>
         </tr>
+        <tr>Who likes: 
+            <?php foreach ($replies['likes'] as $user){
+                        echo $user['name'].', ';
+                    }
+            ?>
+        </tr>
         <tr>
+        <div>
             <form action="storeReply" method="post">
                 <input type="hidden" name="post_id" value="<?= $replies['post']['id']; ?>"></input>
                 <input type="hidden" name="type" value="0"></input>
                 <input type="text" id="content" name="content"><br><br>
                 <input type="submit" value="Reply">
             </form> 
+        </div>
         </tr>
     </table>
     <br>    

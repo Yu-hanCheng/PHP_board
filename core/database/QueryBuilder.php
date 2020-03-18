@@ -103,7 +103,11 @@ class QueryBuilder
             $reply['rere'] = $rereplies;
             array_push($results,$reply);
         }
+        $userLikes = Capsule::table('likes')
+            ->join('users', 'users.id', 'likes.user_id')
+            ->select('users.name as name')->where('post_id',$post_id)->get();
         $response['post'] = $post[0];
+        $response['likes'] = $userLikes;
         $response['AllReplies'] = $results;
         return $response;
     }
