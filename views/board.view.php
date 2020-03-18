@@ -12,12 +12,12 @@
     <ul>
         <?php foreach ($board as $post) : ?>
         <li>
-            <div><a>Name</a> <?= $post->name; ?></div>
+            <div><a>Name</a> <?= $post->user_name; ?></div>
             <div><a>Created time</a> <?= substr($post->created_at, 0, strlen($post->created_at)-3); ?></div>
             <div><a>Content</a> <?= $post->content; ?></div>
             <form action="storeLike" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
-                <?php if(!$post->like): ?>
+                <?php if(count($post->likes) == 0): ?>
                     <input type="hidden" name="isStore" value=1></input>
                     <input type="submit" value="Like"/>
                 <?php else: ?>
@@ -26,15 +26,15 @@
                     <input type="submit" value="Unlike"/>
                 <?php endif; ?>
             </form> 
-            <form action="showReply" method="post">
+            <form action="showComment" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
                 <input type="submit" value="All Replies -->">
             </form> 
-            <form action="storeReply" method="post">
+            <form action="storeComment" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
                 <input type="hidden" name="type" value="0"></input>
                 <input type="text" id="content" name="content"><br><br>
-                <input type="submit" value="Reply">
+                <input type="submit" value="Comment">
             </form> 
         </li>
             <?php endforeach; ?>

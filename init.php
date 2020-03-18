@@ -1,4 +1,4 @@
 <?php 
-require 'core/bootstrap.php';
 
-return (new QueryBuilder())->createStatement();
+require 'core/bootstrap.php';
+return $db->createStatement();

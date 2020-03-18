@@ -2,14 +2,13 @@
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-require 'vendor/autoload.php';
 $config = require 'dbconfig.php';
 
 $capsule = new Capsule;
 
 $capsule->addConnection([
-    'driver'    => 'mysql',
-    'host'      => 'localhost',
+    'driver'    => $config['driver'],
+    'host'      => $config['host'],
     'database'  => $config['database'],
     'username'  => $config['username'],
     'password'  => $config['password'],
@@ -17,6 +16,9 @@ $capsule->addConnection([
     'collation' => 'utf8_unicode_ci',
     'prefix'    => '',
 ]);
+use Illuminate\Events\Dispatcher;
+use Illuminate\Container\Container;
+$capsule->setEventDispatcher(new Dispatcher(new Container));
 
 $capsule->setAsGlobal();
 $capsule->bootEloquent();

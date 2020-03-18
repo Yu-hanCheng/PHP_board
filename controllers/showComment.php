@@ -6,7 +6,7 @@ try {
     if (isset($_POST['post_id'])) {
         $_SESSION['post_id']=$_POST['post_id'];
     }
-    $replies = json_decode(json_encode($db->showReplies($_SESSION['post_id'])),true);
+    $replies = json_decode(json_encode($db->showComments($_SESSION['post_id'])),true);
 } catch (Exception $e) {
     echo $e->getMessage();
 }

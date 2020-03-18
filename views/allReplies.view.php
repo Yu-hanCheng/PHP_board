@@ -12,7 +12,7 @@
         function myFunction($rid) { 
             var popup = document.getElementById("myPopup");
             var input = document.createElement("input");
-                input.name = "reply_id";
+                input.name = "comment_id";
                 input.type = "hidden";
                 input.value= $rid;
             popup.appendChild(input);
@@ -44,7 +44,7 @@
 </head>
 <body style="text-align:center">
     <div class="popup">
-        <form class="popuptext" action="storeReply" method="post" id="myPopup">
+        <form class="popuptext" action="storeComment" method="post" id="myPopup">
             <input type="hidden" name="type" value="1"></input>
             <input type="text" name="content"/>
             <input type="submit" value="Reply">
@@ -59,18 +59,18 @@
             <th><?= $replies['post']['content']; ?></th>
         </tr>
         <tr>Who likes: 
-            <?php foreach ($replies['likes'] as $user){
-                        echo $user['name'].', ';
+            <?php foreach ($replies['likes'] as $like){
+                        echo $like['user']['name'].', ';
                     }
             ?>
         </tr>
         <tr>
         <div>
-            <form action="storeReply" method="post">
+            <form action="storeComment" method="post">
                 <input type="hidden" name="post_id" value="<?= $replies['post']['id']; ?>"></input>
                 <input type="hidden" name="type" value="0"></input>
                 <input type="text" id="content" name="content"><br><br>
-                <input type="submit" value="Reply">
+                <input type="submit" value="Comment">
             </form> 
         </div>
         </tr>
@@ -81,21 +81,21 @@
             <th>Name</th>
             <th>Reply content</th>
         </tr>
-        <?php foreach ($replies['AllReplies'] as $reply) : ?>
+        <?php foreach ($replies['Allcomments'] as $comment) : ?>
         <tr>
-            <td><?= $reply['rname'] ?></td>
-            <td><?= $reply['rcontent'] ?></td>
+            <td><?= $comment['user']['name'] ?></td>
+            <td><?= $comment['content'] ?></td>
             <td><table bordercolor=green>
-                <?php foreach ($reply['rere'] as $rereply) : ?>
+                <?php foreach ($comment['replies'] as $reply) : ?>
                     <tr>
-                        <td><?= $rereply['name'] ?></td>
-                        <td><?= $rereply['content'] ?></td>
+                        <td><?= $reply['user']['name'] ?></td>
+                        <td><?= $reply['content'] ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>
             </td>
             <td>
-            <div onclick=<?= "myFunction(".$reply['rid'].")"?>>Reply
+            <div onclick=<?= "myFunction(".$comment['id'].")"?>>Reply
             </div>
             </td>
         </tr>

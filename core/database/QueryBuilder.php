@@ -2,40 +2,44 @@
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 
+require 'vendor/autoload.php';
 class QueryBuilder
 {
     protected $user_id;
     public function createStatement()
     {
-        Capsule::schema()->create('posts', function ($table) {
+        Capsule::schema()->create('users', function ($table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('password');
+            $table->timestamps();
+        });
+
+        Capsule::schema()->create('posts', function ($table) {
+            $table->increments('id');
+            $table->string('content');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->timestamps();
+        });
+
+        Capsule::schema()->create('comments', function ($table) {
+            $table->increments('id');
+            $table->integer('post_id')->unsigned();
+            $table->foreign('post_id')->references('id')->on('posts');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('content');
             $table->timestamps();
         });
 
         Capsule::schema()->create('replies', function ($table) {
             $table->increments('id');
-            $table->integer('post_id')->unsigned();
-            $table->foreign('post_id')->references('id')->on('posts');
-            $table->string('name');
+            $table->integer('comment_id')->unsigned();
+            $table->foreign('comment_id')->references('id')->on('comments');
+            $table->integer('user_id')->unsigned();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('content');
-            $table->timestamps();
-        });
-
-        Capsule::schema()->create('rereplies', function ($table) {
-            $table->increments('id');
-            $table->integer('reply_id')->unsigned();
-            $table->foreign('reply_id')->references('id')->on('replies');
-            $table->string('name');
-            $table->string('content');
-            $table->timestamps();
-        });
-
-        Capsule::schema()->create('users', function ($table) {
-            $table->increments('id');
-            $table->string('name');
-            $table->string('password');
             $table->timestamps();
         });
 
@@ -51,64 +55,46 @@ class QueryBuilder
 
     public function selectAll($table, $user_id)
     {
-        $this->user_id = $user_id;
-        $post = Capsule::table($table)
-            ->leftJoin('likes', function($join){
-                $join->where('likes.user_id','=', $this->user_id)
-                ->on('posts.id', '=', 'likes.post_id');})
-            ->select('posts.*','likes.id as like')
-            ->orderBy('created_at','desc')->get();
-        return $post;
+        $posts = Post::with(['likes' => function ($query) use ($user_id) {
+            $query->where('user_id', $user_id);
+        },'comments'])->orderBy('created_at','desc')->get();
+        return $posts;
     }
 
     public function storePost($post)
     {
-        $post = Capsule::table('posts')->insertGetId(
-            array('name' => $post['name'],
+        $post = Post::create(
+            array('user_id' => $post['user_id'],
                 'content' => $post['content'],
                 'created_at' => $post['created_at']));
     }
 
+    public function storeComment($comment)
+    {
+        $comment= Comment::create(
+            array('post_id' => $comment['post_id'],
+                'user_id' => $comment['user_id'],
+                'content' => $comment['content'],
+                'created_at' => $comment['created_at']));
+    }
+
     public function storeReply($reply)
     {
-        $reply = Capsule::table('replies')->insertGetId(
-            array('post_id' => $reply['post_id'],
-                'name' => $reply['name'],
+        $rereply = Reply::create(
+            array('comment_id' => $reply['comment_id'],
+                'user_id' => $reply['user_id'],
                 'content' => $reply['content'],
                 'created_at' => $reply['created_at']));
     }
 
-    public function storeReReply($reply)
+    public function showComments($post_id)
     {
-        $rereply = Capsule::table('rereplies')->insertGetId(
-            array('reply_id' => $reply['reply_id'],
-                'name' => $reply['name'],
-                'content' => $reply['content'],
-                'created_at' => $reply['created_at']));
-    }
-
-    public function showReplies($post_id)
-    {
-        $allReplies = Capsule::table('replies')->select(
-            'id as rid',
-            'name as rname',
-            'content as rcontent',
-            'created_at as rcreated'
-            )->where('post_id',$post_id)->orderBy('created_at','desc')->get();
-        $post = Capsule::table('posts')->where('id', $post_id)->get();
-        $results = [];
-        foreach ($allReplies as $reply) {
-            $rereplies = Capsule::table('rereplies')->where('reply_id', $reply->rid)->orderBy('created_at','desc')->get();
-            $reply = json_decode(json_encode($reply), true);
-            $reply['rere'] = $rereplies;
-            array_push($results,$reply);
-        }
-        $userLikes = Capsule::table('likes')
-            ->join('users', 'users.id', 'likes.user_id')
-            ->select('users.name as name')->where('post_id',$post_id)->get();
-        $response['post'] = $post[0];
-        $response['likes'] = $userLikes;
-        $response['AllReplies'] = $results;
+        $postAll = Post::with(['comments' => function ($query) use ($post_id) {
+            $query->with('user','replies')->where('post_id',$post_id)->orderBy('created_at','desc');
+        },'likes'])->where('id',$post_id)->first();
+        $response['post'] = $postAll->only('id','content');
+        $response['likes'] = $postAll->likes;
+        $response['Allcomments'] = $postAll->comments;
         return $response;
     }
 
@@ -118,7 +104,7 @@ class QueryBuilder
         if ($isUnique) {
             return false;
         } else {
-            $user = Capsule::table('users')->insertGetId(
+            $user = User::create(
                 array('name' => $user['name'],
                 'password' => $user['password'],
                 'created_at' => $user['created_at']));
@@ -128,7 +114,7 @@ class QueryBuilder
 
     public function isUser($name, $password)
     {
-          $user = Capsule::table('users')->where('name', $name)->first();
+          $user = User::where('name', $name)->first();
           if ($user) {
               if ($password == $user->password) {
                 $user = json_decode(json_encode($user), true);
@@ -143,11 +129,11 @@ class QueryBuilder
 
     public function storeLike($like)
     {
-        $hasA = Capsule::table('likes')->where([['user_id','=',$like['user_id']],['post_id','=', $like['post_id']]])->exists();
+        $hasA = Like::where([['user_id','=',$like['user_id']],['post_id','=', $like['post_id']]])->exists();
         if ($hasA) {
             return false;
         } else {
-            $user = Capsule::table('likes')->insertGetId(
+            $user = Like::create(
                 array('post_id' => $like['post_id'],
                 'user_id' => $like['user_id'],
                 'created_at' => $like['created_at']));
@@ -157,7 +143,7 @@ class QueryBuilder
 
     public function removeLike($like)
     {
-        $hasA = Capsule::table('likes')->where([['user_id','=',$like['user_id']],['post_id','=', $like['post_id']]])->delete();
+        $hasA = Like::where([['user_id','=',$like['user_id']],['post_id','=', $like['post_id']]])->delete();
     }
 }
 ?>
