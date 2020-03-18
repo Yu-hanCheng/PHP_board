@@ -18,9 +18,12 @@
             <form action="storeLike" method="post">
                 <input type="hidden" name="post_id" value="<?= $post->id; ?>"></input>
                 <?php if(!$post->like): ?>
-                    <input type="submit" value="Like" enabled/>
+                    <input type="hidden" name="isStore" value=1></input>
+                    <input type="submit" value="Like"/>
                 <?php else: ?>
-                    <input type="submit" value="Liked" disabled />
+                    <img src="views/src/like.png" width="20px" height="20px">
+                    <input type="hidden" name="isStore" value=0></input>
+                    <input type="submit" value="Unlike"/>
                 <?php endif; ?>
             </form> 
             <form action="showReply" method="post">

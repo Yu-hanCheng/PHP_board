@@ -150,5 +150,10 @@ class QueryBuilder
             return true;
         }
     }
+
+    public function removeLike($like)
+    {
+        $hasA = Capsule::table('likes')->where([['user_id','=',$like['user_id']],['post_id','=', $like['post_id']]])->delete();
+    }
 }
 ?>
